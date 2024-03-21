@@ -24,6 +24,7 @@ async function run() {
 
         const db = client.db('assignment');
         const collection = db.collection('users');
+        const suppliesCollection = db.collection('supplies');
 
         // User Registration
         app.post('/api/v1/register', async (req, res) => {
@@ -79,6 +80,26 @@ async function run() {
 
         // ==============================================================
         // WRITE YOUR CODE HERE
+        //Create supplies
+        app.post("/api/v1/add-supply", async (req, res) => {
+            const newSupply = req.body;
+            const result = await suppliesCollection.insertOne(newSupply);
+            res.status(201).json({
+                success: true,
+                message: 'New Supply Added successfully!',
+                data: result
+            });
+        });
+
+        //get all supplies
+        app.get("/api/v1/supplies", async (req, res) => {
+            const result = await suppliesCollection.find().toArray();;
+            res.status(201).json({
+                success: true,
+                message: 'Supplies are retrieved successfully!',
+                data: result
+            });
+        });
         // ==============================================================
 
 
