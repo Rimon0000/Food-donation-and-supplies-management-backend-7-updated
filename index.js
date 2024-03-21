@@ -100,6 +100,16 @@ async function run() {
                 data: result
             });
         });
+
+        //get filter(only 6) supplies
+        app.get("/api/v1/filter-supplies", async (req, res) => {
+            const result = await suppliesCollection.find().limit(6).toArray();
+            res.status(201).json({
+                success: true,
+                message: 'Supplies are retrieved successfully!',
+                data: result
+            });
+          });
         // ==============================================================
 
 
