@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const bcrypt = require('bcrypt');
-const { MongoClient } = require('mongodb');
+const { MongoClient, ObjectId } = require('mongodb');
 require('dotenv').config();
 const jwt = require('jsonwebtoken');
 
@@ -110,6 +110,18 @@ async function run() {
                 data: result
             });
           });
+
+          //get a supply
+          app.get("/api/v1/supply/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await suppliesCollection.findOne(query);
+            res.status(201).json({
+                success: true,
+                message: 'Supplies is retrieved successfully!',
+                data: result
+            });
+        });
         // ==============================================================
 
 
