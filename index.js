@@ -133,7 +133,19 @@ async function run() {
                 message: 'Donation Added successfully!',
                 data: result
             });
-          });
+            });
+
+            //get donation for a user by email
+            app.get("/api/v1/donation/:email", async (req, res) => {
+                const email = req.params.email 
+                const query = { email: email };
+                const result = await donationCollection.findOne(query);
+                res.status(201).json({
+                    success: true,
+                    message: 'Donation is retrieved successfully!',
+                    data: result
+                });
+            });
         // ==============================================================
 
 
