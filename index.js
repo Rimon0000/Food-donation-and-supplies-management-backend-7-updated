@@ -124,6 +124,19 @@ async function run() {
             });
            });
 
+           //update a supply
+          app.put("/api/v1/supply/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const update = { $set: req.body };
+            const result = await suppliesCollection.findOneAndUpdate(query, update, { returnOriginal: false });
+            res.status(201).json({
+                success: true,
+                message: 'Supplies is updated successfully!',
+                data: result
+            });
+           });
+
            //add a donation
            app.post("/api/v1/add-donation", async (req, res) => {
             const newDonation = req.body;
@@ -139,7 +152,7 @@ async function run() {
             app.get("/api/v1/donation/:email", async (req, res) => {
                 const email = req.params.email 
                 const query = { email: email };
-                const result = await donationCollection.findOne(query);
+                const result = await donationCollection.find(query).toArray();
                 res.status(201).json({
                     success: true,
                     message: 'Donation is retrieved successfully!',
