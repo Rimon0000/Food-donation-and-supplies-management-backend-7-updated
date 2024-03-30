@@ -82,7 +82,7 @@ async function run() {
         // ==============================================================
         // WRITE YOUR CODE HERE
         //Create supplies
-        app.post("/api/v1/add-supply", async (req, res) => {
+        app.post("/api/v1/create-supply", async (req, res) => {
             const newSupply = req.body;
             const result = await suppliesCollection.insertOne(newSupply);
             res.status(201).json({
@@ -133,6 +133,18 @@ async function run() {
             res.status(201).json({
                 success: true,
                 message: 'Supplies is updated successfully!',
+                data: result
+            });
+           });
+
+           //delete a supply
+          app.delete("/api/v1/supply/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await suppliesCollection.deleteOne(query);
+            res.status(201).json({
+                success: true,
+                message: 'Supplies is deleted successfully!',
                 data: result
             });
            });
