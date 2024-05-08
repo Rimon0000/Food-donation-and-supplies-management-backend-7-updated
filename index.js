@@ -27,6 +27,10 @@ async function run() {
         const suppliesCollection = db.collection('supplies');
         const donationCollection = db.collection('donations');
 
+        //assignment-7
+
+        
+
         // User Registration
         app.post('/api/v1/register', async (req, res) => {
             const { name, email, password } = req.body;
@@ -81,6 +85,7 @@ async function run() {
 
         // ==============================================================
         // WRITE YOUR CODE HERE
+        //ASSIGNMENT-6
         //Create supplies
         app.post("/api/v1/create-supply", async (req, res) => {
             const newSupply = req.body;
@@ -94,7 +99,7 @@ async function run() {
 
         //get all supplies
         app.get("/api/v1/supplies", async (req, res) => {
-            const result = await suppliesCollection.find().toArray();;
+            const result = await suppliesCollection.find().toArray();
             res.status(201).json({
                 success: true,
                 message: 'Supplies are retrieved successfully!',
@@ -171,6 +176,39 @@ async function run() {
                     data: result
                 });
             });
+
+            //ASSIGNMENT-7
+            //get all donations for leader board
+            app.get("/api/v1/donations", async (req, res) => {
+                const donations = await donationCollection.find().toArray();
+                const emailQuantitiesMap = {};
+                // Aggregate total quantity for each email
+                donations.forEach(donation => {
+                    const { name, email, category, quantity } = donation;
+                    if (emailQuantitiesMap[email]) {
+                        emailQuantitiesMap[email].totalQuantity += quantity;
+                    } else {
+                        emailQuantitiesMap[email] = {
+                            name,
+                            email,
+                            category,
+                            totalQuantity: quantity
+                        };
+                    }
+                });
+                // Convert map to array of objects
+                const result = Object.values(emailQuantitiesMap);
+                result.sort((a, b) => b.totalQuantity - a.totalQuantity);
+                res.status(200).json({
+                    success: true,
+                    message: 'Donations are retrieved successfully!',
+                    data: result
+                });
+            });
+            
+            
+            
+
         // ==============================================================
 
 
