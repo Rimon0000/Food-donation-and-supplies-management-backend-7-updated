@@ -26,6 +26,7 @@ async function run() {
         const collection = db.collection('users');
         const suppliesCollection = db.collection('supplies');
         const donationCollection = db.collection('donations');
+        const communityGCommentCollection = db.collection('communities');
 
         //assignment-7
 
@@ -202,6 +203,27 @@ async function run() {
                 res.status(200).json({
                     success: true,
                     message: 'Donations are retrieved successfully!',
+                    data: result
+                });
+            });
+
+            //Create Comment
+            app.post("/api/v1/create-comment", async (req, res) => {
+                const newComment = req.body;
+                const result = await communityGCommentCollection.insertOne(newComment);
+                res.status(201).json({
+                    success: true,
+                    message: 'New Comments Added successfully!',
+                    data: result
+                });
+            });
+
+            //get all comments
+            app.get("/api/v1/comments", async (req, res) => {
+                const result = await communityGCommentCollection.find().toArray();
+                res.status(201).json({
+                    success: true,
+                    message: 'Comments are retrieved successfully!',
                     data: result
                 });
             });
