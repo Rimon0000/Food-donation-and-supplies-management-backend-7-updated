@@ -28,6 +28,7 @@ async function run() {
         const donationCollection = db.collection('donations');
         const communityGCommentCollection = db.collection('communities');
         const testimonialCollection = db.collection('testimonials');
+        const volunteersCollection = db.collection('volunteers');
 
         //assignment-7
 
@@ -236,6 +237,17 @@ async function run() {
                 res.status(201).json({
                     success: true,
                     message: 'New Testimonial Added successfully!',
+                    data: result
+                });
+            });
+
+            //Create Volunteer
+            app.post("/api/v1/create-volunteer", async (req, res) => {
+                const newVolunteer = req.body;
+                const result = await volunteersCollection.insertOne(newVolunteer);
+                res.status(201).json({
+                    success: true,
+                    message: 'New Volunteer Added successfully!',
                     data: result
                 });
             });
