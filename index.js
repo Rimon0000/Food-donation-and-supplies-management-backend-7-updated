@@ -27,6 +27,7 @@ async function run() {
         const suppliesCollection = db.collection('supplies');
         const donationCollection = db.collection('donations');
         const communityGCommentCollection = db.collection('communities');
+        const testimonialCollection = db.collection('testimonials');
 
         //assignment-7
 
@@ -224,6 +225,17 @@ async function run() {
                 res.status(201).json({
                     success: true,
                     message: 'Comments are retrieved successfully!',
+                    data: result
+                });
+            });
+
+             //Create testimonial
+             app.post("/api/v1/create-testimonial", async (req, res) => {
+                const newTestimonial = req.body;
+                const result = await testimonialCollection.insertOne(newTestimonial);
+                res.status(201).json({
+                    success: true,
+                    message: 'New Testimonial Added successfully!',
                     data: result
                 });
             });
