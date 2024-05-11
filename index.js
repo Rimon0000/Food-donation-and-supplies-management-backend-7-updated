@@ -251,6 +251,35 @@ async function run() {
                     data: result
                 });
             });
+
+            //get all volunteers
+            app.get("/api/v1/volunteers", async (req, res) => {
+                const result = await volunteersCollection.find().toArray();
+                res.status(201).json({
+                    success: true,
+                    message: 'volunteers are retrieved successfully!',
+                    data: result
+                });
+            });
+
+            //get all volunteers
+            app.get("/api/v1/volunteers", async (req, res) => {
+                const result = await volunteersCollection.find().toArray();
+                res.status(201).json({
+                    success: true,
+                    message: 'volunteers are retrieved successfully!',
+                    data: result
+                });
+            });
+
+            app.get("/api/v1/filter-volunteers", async (req, res) => {
+                const result = await volunteersCollection.find().limit(4).toArray();
+                res.status(201).json({
+                    success: true,
+                    message: 'volunteers are retrieved successfully!',
+                    data: result
+                });
+              });
             
             
             
