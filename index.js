@@ -16,6 +16,27 @@ app.use(express.json());
 const uri = process.env.MONGODB_URI;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 
+//JWT Token verify
+const verifyJWT = (req, res, next) => {
+    const authorization = req.headers.authorization;
+    if (!authorization) {
+      return res
+        .status(401)
+        .send({ error: true, message: "unauthorized access" });
+    }
+    //bearer token
+    const token = authorization.split(" ")[1];
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+      if (err) {
+        return res
+          .status(401)
+          .send({ error: true, message: "unauthorized access" });
+      }
+      req.decoded = decoded;
+      next();
+    });
+  };
+
 async function run() {
     try {
         // Connect to MongoDB
@@ -29,6 +50,57 @@ async function run() {
         const communityGCommentCollection = db.collection('communities');
         const testimonialCollection = db.collection('testimonials');
         const volunteersCollection = db.collection('volunteers');
+
+
+
+        //////////////////////////////
+        app.post("/jwt", (req, res) => {
+            const user = req.body;
+            const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
+              expiresIn: "1h",
+            });
+            res.send({ token });
+          });
+      
+          //verify Admin
+          const verifyAdmin = async (req, res, next) => {
+            email = req.decoded.email;
+            const query = { email: email };
+            const user = await collection.findOne(query);
+            if (user?.role !== "admin") {
+              return res
+                .status(403)
+                .send({ error: true, message: "forbidden message" });
+            }
+            next();
+          };
+
+          //make admin
+           app.patch("/users/admin/:id", async (req, res) => {
+           const id = req.params.id;
+           const filter = { _id: new ObjectId(id) };
+           const updateDoc = {
+             $set: {
+               role: "admin",
+             },
+           };
+           const result = await collection.updateOne(filter, updateDoc);
+           res.send(result);
+         });
+            
+          //check user admin or not?
+        app.get("/users/admin/:email", verifyJWT, async (req, res) => {
+        const email = req.params.email;
+        if (req.decoded.email !== email) {
+          res.send({ admin: false });
+        }
+        const query = { email: email };
+        const user = await collection.findOne(query);
+        const result = { admin: user?.role === "admin" };
+        res.send(result);
+       });
+
+          /////////////////////////////////////////////
 
         //assignment-7
 
@@ -65,6 +137,7 @@ async function run() {
 
             // Find user by email
             const user = await collection.findOne({ email });
+
             if (!user) {
                 return res.status(401).json({ message: 'Invalid email or password' });
             }
@@ -241,6 +314,16 @@ async function run() {
                 });
             });
 
+            //get all testimonial
+            app.get("/api/v1/testimonials", async (req, res) => {
+                const result = await testimonialCollection.find().toArray();
+                res.status(201).json({
+                    success: true,
+                    message: 'Testimonial are Retrieved successfully!',
+                    data: result
+                });
+            });
+
             //Create Volunteer
             app.post("/api/v1/create-volunteer", async (req, res) => {
                 const newVolunteer = req.body;
@@ -281,7 +364,27 @@ async function run() {
                 });
               });
             
-            
+            //get all users
+            app.get("/api/v1/users",   async (req, res) => {
+                const result = await collection.find().toArray();
+                res.status(201).json({
+                    success: true,
+                    message: 'Users are retrieved successfully!',
+                    data: result
+                });
+            });
+
+            //get a supply
+            app.get("/api/v1/user/:id", async (req, res) => {
+              const id = req.params.id;
+              const query = { _id: new ObjectId(id) };
+              const result = await collection.findOne(query);
+              res.status(201).json({
+                  success: true,
+                  message: 'User is retrieved successfully!',
+                  data: result
+              });
+             });
             
 
         // ==============================================================
