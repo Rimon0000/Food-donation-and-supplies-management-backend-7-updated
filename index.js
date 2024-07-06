@@ -185,7 +185,7 @@ async function run() {
 
         //get filter(only 6) supplies
         app.get("/api/v1/filter-supplies", async (req, res) => {
-            const result = await suppliesCollection.find().limit(6).toArray();
+            const result = await suppliesCollection.find().limit(8).toArray();
             res.status(201).json({
                 success: true,
                 message: 'Supplies are retrieved successfully!',
@@ -374,7 +374,7 @@ async function run() {
                 });
             });
 
-            //get a supply
+            //get a user
             app.get("/api/v1/user/:id", async (req, res) => {
               const id = req.params.id;
               const query = { _id: new ObjectId(id) };
@@ -386,7 +386,49 @@ async function run() {
               });
              });
             
-
+             //update user
+             app.put("/api/v1/user/:id", async (req, res) => {
+                const id = req.params.id;
+                const {
+                    image,
+                    designation,
+                    company,
+                    contact,
+                    address,
+                    city,
+                    country,
+                    date,
+                    bio
+                } = req.body;
+            
+                try {
+                    const query = { _id: new ObjectId(id) };
+                    const updateDoc = {
+                        $set: {
+                            image,
+                            designation,
+                            company,
+                            contact,
+                            address,
+                            city,
+                            country,
+                            date,
+                            bio
+                        },
+                    };
+            
+                    const result = await collection.updateOne(query, updateDoc, { returnOriginal: false });
+            
+                    if (result.matchedCount === 0) {
+                        return res.status(404).json({ message: "User not found" });
+                    }
+            
+                    res.status(200).json({ message: "User updated successfully" });
+                } catch (error) {
+                    console.error("Error updating user:", error);
+                    res.status(500).json({ message: "Error updating user" });
+                }
+            });
         // ==============================================================
 
 
