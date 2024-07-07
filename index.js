@@ -325,10 +325,21 @@ async function run() {
                 const email = req.params.email 
                 const query = { email: email };
                 const result = await communityGCommentCollection.countDocuments(query);
-                console.log(result);
                 res.status(201).json({
                     success: true,
                     message: 'Comments are retrieved successfully!',
+                    data: result
+                });
+            });
+
+            //get donation for a user by email
+            app.get("/api/v1/comment/:email", async (req, res) => {
+                const email = req.params.email 
+                const query = { email: email };
+                const result = await communityGCommentCollection.find(query).toArray();
+                res.status(201).json({
+                    success: true,
+                    message: 'Comments is retrieved successfully!',
                     data: result
                 });
             });
@@ -353,6 +364,31 @@ async function run() {
                     data: result
                 });
             });
+
+            //update a testimonial
+          app.put("/api/v1/testimonial/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const update = { $set: req.body };
+            const result = await testimonialCollection.findOneAndUpdate(query, update, { returnOriginal: false });
+            res.status(201).json({
+                success: true,
+                message: 'testimonial is updated successfully!',
+                data: result
+            });
+           });
+
+           //delete a testimonial
+          app.delete("/api/v1/testimonial/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await testimonialCollection.deleteOne(query);
+            res.status(201).json({
+                success: true,
+                message: 'testimonial is deleted successfully!',
+                data: result
+            });
+           });
 
             //Create Volunteer
             app.post("/api/v1/create-volunteer", async (req, res) => {
