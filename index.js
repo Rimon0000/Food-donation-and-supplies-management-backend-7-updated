@@ -282,6 +282,23 @@ async function run() {
                 });
             });
 
+            //get total amount of donations
+            app.get("/api/v1/donation-amount", async (req, res) => {
+                const donations = await donationCollection.find().toArray();
+                
+                // Calculate total amount
+                let totalAmount = 0;
+                donations.forEach(donation => {
+                    totalAmount += donation.amount;
+                });
+            
+                res.status(200).json({
+                    success: true,
+                    message: 'Total donation amount are retrieved successfully!',
+                    totalAmount: totalAmount
+                });
+            });
+
             //Create Comment
             app.post("/api/v1/create-comment", async (req, res) => {
                 const newComment = req.body;
@@ -296,6 +313,19 @@ async function run() {
             //get all comments
             app.get("/api/v1/comments", async (req, res) => {
                 const result = await communityGCommentCollection.find().toArray();
+                res.status(201).json({
+                    success: true,
+                    message: 'Comments are retrieved successfully!',
+                    data: result
+                });
+            });
+
+            //get total number of comments by a user email
+            app.get("/api/v1/comments/:email", async (req, res) => {
+                const email = req.params.email 
+                const query = { email: email };
+                const result = await communityGCommentCollection.countDocuments(query);
+                console.log(result);
                 res.status(201).json({
                     success: true,
                     message: 'Comments are retrieved successfully!',
