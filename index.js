@@ -20,18 +20,14 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 const verifyJWT = (req, res, next) => {
     const authorization = req.headers.authorization;
     if (!authorization) {
-      return res
-        .status(401)
-        .send({ error: true, message: "unauthorized access" });
+        return res.status(401).send({ error: true, message: "unauthorized access" }); // Return statement added here
     }
     //bearer token
     const token = authorization.split(" ")[1];
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
-      if (err) {
-        return res
-          .status(401)
-          .send({ error: true, message: "unauthorized access" });
-      }
+        if (err) {
+            return res.status(401).send({ error: true, message: "unauthorized access" }); // Return statement added here
+        }
       req.decoded = decoded;
       next();
     });
@@ -50,6 +46,7 @@ async function run() {
         const communityGCommentCollection = db.collection('communities');
         const testimonialCollection = db.collection('testimonials');
         const volunteersCollection = db.collection('volunteers');
+        const contactsCollection = db.collection('contacts');
 
 
 
@@ -68,9 +65,7 @@ async function run() {
             const query = { email: email };
             const user = await collection.findOne(query);
             if (user?.role !== "admin") {
-              return res
-                .status(403)
-                .send({ error: true, message: "forbidden message" });
+                return res.status(403).send({ error: true, message: "forbidden message" }); // Return statement added here
             }
             next();
           };
@@ -92,7 +87,7 @@ async function run() {
         app.get("/users/admin/:email", verifyJWT, async (req, res) => {
         const email = req.params.email;
         if (req.decoded.email !== email) {
-          res.send({ admin: false });
+            return res.send({ admin: false }); // Return statement added here
         }
         const query = { email: email };
         const user = await collection.findOne(query);
@@ -116,7 +111,7 @@ async function run() {
                 return res.status(400).json({
                     success: false,
                     message: 'User already exists'
-                });
+                }); // Return statement added here
             }
 
             // Hash the password
@@ -150,7 +145,7 @@ async function run() {
 
             // Generate JWT token
             const token = jwt.sign({ email: user.email }, process.env.JWT_SECRET, { expiresIn: process.env.EXPIRES_IN });
-
+            console.log(token);
             res.json({
                 success: true,
                 message: 'Login successful',
@@ -494,6 +489,17 @@ async function run() {
                     console.error("Error updating user:", error);
                     res.status(500).json({ message: "Error updating user" });
                 }
+            });
+
+            //Create contact
+            app.post("/api/v1/create-contact", async (req, res) => {
+                const newContact = req.body;
+                const result = await contactsCollection.insertOne(newContact);
+                res.status(201).json({
+                    success: true,
+                    message: 'New contact Added successfully!',
+                    data: result
+                });
             });
         // ==============================================================
 
