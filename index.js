@@ -253,29 +253,41 @@ async function run() {
             app.get("/api/v1/donations", async (req, res) => {
                 const donations = await donationCollection.find().toArray();
                 const emailQuantitiesMap = {};
-                // Aggregate total quantity for each email
+        
+                // Aggregate total amount for each email
                 donations.forEach(donation => {
-                    const { name, email, category, quantity } = donation;
-                    if (emailQuantitiesMap[email]) {
-                        emailQuantitiesMap[email].totalQuantity += quantity;
+                    const { name, email, category, amount } = donation;
+        
+                    // Check if amount is a valid number
+                    if (typeof amount === 'number' && !isNaN(amount)) {
+                        if (emailQuantitiesMap[email]) {
+                            emailQuantitiesMap[email].totalAmount += amount;
+                        } else {
+                            emailQuantitiesMap[email] = {
+                                name,
+                                email,
+                                category,
+                                totalAmount: amount // Initialize totalAmount
+                            };
+                        }
                     } else {
-                        emailQuantitiesMap[email] = {
-                            name,
-                            email,
-                            category,
-                            totalQuantity: quantity
-                        };
+                        console.warn(`Invalid amount for donation: ${JSON.stringify(donation)}`);
                     }
                 });
+        
+                console.log(emailQuantitiesMap);
+        
                 // Convert map to array of objects
                 const result = Object.values(emailQuantitiesMap);
-                result.sort((a, b) => b.totalQuantity - a.totalQuantity);
+                result.sort((a, b) => b.totalAmount - a.totalAmount); // Change to totalAmount
+        
                 res.status(200).json({
                     success: true,
                     message: 'Donations are retrieved successfully!',
                     data: result
                 });
             });
+            
 
             //get total amount of donations
             app.get("/api/v1/donation-amount", async (req, res) => {
